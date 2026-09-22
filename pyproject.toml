@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sovereign-yield-curve-embi"
+version = "1.0.0"
+description = "Institutional sovereign yield curve modeling (Nelson-Siegel), cross-border EMBI+ risk spread analytics, carry & roll-down dynamics, and sovereign credit DCF valuation."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "openpyxl>=3.1.2",
+    "fastapi>=0.110.0",
+    "uvicorn>=0.28.0",
+    "pydantic>=2.6.0",
+    "typer>=0.9.0",
+    "rich>=13.7.0"
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
