@@ -164,7 +164,7 @@ def macro_summary():
     try:
         import os
         legacy_path = os.path.join(
-            os.path.dirname(__file__), "..", "..", "excel_legacy", "EMBI_DOS_DEUSES_ATUALIZANDO_REAL_TIME.xlsx"
+            os.path.dirname(__file__), "..", "..", "excel_legacy", "sovereign_yield_curve_embi_legacy.xlsx"
         )
         if os.path.exists(legacy_path):
             dataset = SovereignDataLoader.load_from_excel(legacy_path)

@@ -24,7 +24,7 @@ console = Console()
 def _get_dataset(excel_path: Optional[str] = None):
     if excel_path and Path(excel_path).exists():
         return SovereignDataLoader.load_from_excel(excel_path)
-    legacy = Path(__file__).parent.parent / "excel_legacy" / "EMBI_DOS_DEUSES_ATUALIZANDO_REAL_TIME.xlsx"
+    legacy = Path(__file__).parent.parent / "excel_legacy" / "sovereign_yield_curve_embi_legacy.xlsx"
     if legacy.exists():
         return SovereignDataLoader.load_from_excel(str(legacy))
     return SovereignDataLoader.generate_sample_dataset()

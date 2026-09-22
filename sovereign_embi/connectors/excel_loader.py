@@ -1,7 +1,7 @@
 """Excel Loader & Curve Data Connector.
 
 Extracts sovereign bond yields, EMBI+ spreads, and macro variables
-from Excel workbooks ('EMBI DOS DEUSES ATUALIZANDO REAL TIME.xlsx')
+from Excel workbooks ('sovereign_yield_curve_embi_legacy.xlsx')
 and provides synthetic fallback datasets for offline execution.
 """
 
@@ -47,7 +47,7 @@ class SovereignDataLoader:
 
     @classmethod
     def load_from_excel(cls, file_path: str) -> SovereignDataset:
-        """Parse 'EMBI DOS DEUSES ATUALIZANDO REAL TIME.xlsx' workbook."""
+        """Parse 'sovereign_yield_curve_embi_legacy.xlsx' workbook."""
         path = Path(file_path)
         if not path.exists():
             raise FileNotFoundError(f"Workbook not found at {file_path}")

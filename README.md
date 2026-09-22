@@ -96,7 +96,7 @@ sovereign-yield-curve-embi/
 │   │   └── server.py              # FastAPI microservice with Swagger OpenAPI specs
 │   └── cli.py                     # Typer + Rich interactive terminal interface
 ├── excel_legacy/                  # Original Excel workbook reference
-│   └── EMBI_DOS_DEUSES_ATUALIZANDO_REAL_TIME.xlsx
+│   └── sovereign_yield_curve_embi_legacy.xlsx   # Sanitized legacy workbook (metadata stripped)
 ├── tests/
 │   ├── test_nelson_siegel.py      # Analytical limits, RMSE fitting, and discount factors
 │   ├── test_sovereign_spread.py   # Spreads, EMBI deductions, Fisher real rates
