@@ -70,7 +70,7 @@ def fit(
 
     fitted_zeros = curve.predict(maturities)
     forwards = curve.forward_rates(maturities)
-    # Curva calibrada em percentual -> DF com units="percent".
+    # Curve fitted in percent -> DF with units="percent".
     dfs = curve.discount_factors(maturities, units="percent")
 
     for m, y_obs, y_fit, fwd, df in zip(maturities, yields, fitted_zeros, forwards, dfs):

@@ -78,7 +78,7 @@ def fit_curve(req: FitCurveRequest):
         targets = req.target_maturities or req.maturities
         zero_rates = curve.predict(targets).tolist()
         forwards = curve.forward_rates(targets).tolist()
-        # fit() recebe yields em percentual -> DF com units="percent".
+        # fit() takes percent yields -> DF with units="percent".
         dfs = curve.discount_factors(targets, units="percent").tolist()
 
         return FitCurveResponse(
