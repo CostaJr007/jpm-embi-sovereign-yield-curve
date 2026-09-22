@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests: Pytest](https://img.shields.io/badge/Tests-10%20Passed-brightgreen.svg)](https://pytest.org)
 
-Research-grade Sovereign Fixed Income & Country Risk Engine. Reverse-engineered and formalized from macro trading workbooks (`excel_legacy/sovereign_yield_curve_embi_legacy.xlsx`), modernizing legacy Excel models into a modular Python engine featuring **Nelson-Siegel (1987)** parametric term-structure calibration, **EMBI+ sovereign risk spread decomposition**, **carry & roll-down dynamics**, and **multi-year credit risk DCF valuation**.
+Research-grade Sovereign Fixed Income & Country Risk Engine. Reverse-engineered and formalized from macro trading workbooks (see `excel_legacy/README.md` for provenance), modernizing legacy Excel models into a modular Python engine featuring **Nelson-Siegel (1987)** parametric term-structure calibration, **EMBI+ (J.P. Morgan Emerging Markets Bond Index Plus) sovereign risk spread decomposition**, **carry & roll-down dynamics**, and **multi-year credit risk DCF valuation**.
 
 ---
 
@@ -95,8 +95,8 @@ sovereign-yield-curve-embi/
 │   ├── api/
 │   │   └── server.py              # FastAPI service with Swagger OpenAPI specs
 │   └── cli.py                     # Typer + Rich interactive terminal interface
-├── excel_legacy/                  # Original Excel workbook reference
-│   └── sovereign_yield_curve_embi_legacy.xlsx   # Sanitized legacy workbook (metadata stripped)
+├── excel_legacy/                  # Provenance notes (no binaries shipped)
+│   └── README.md
 ├── tests/
 │   ├── test_nelson_siegel.py      # Analytical limits, RMSE fitting, and discount factors
 │   ├── test_sovereign_spread.py   # Spreads, EMBI deductions, Fisher real rates

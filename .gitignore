@@ -38,3 +38,8 @@ htmlcov/
 *.swp
 *.swo
 .DS_Store
+
+# Legacy workbooks: never commit binaries (see excel_legacy/README.md)
+excel_legacy/*.xlsm
+excel_legacy/*.xlsx
+!excel_legacy/README.md
