@@ -4,7 +4,7 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com)
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Tests: Pytest](https://img.shields.io/badge/Tests-10%20Passed-brightgreen.svg)](https://pytest.org)
+[![Tests: Pytest](https://img.shields.io/badge/Tests-15%20Passed-brightgreen.svg)](https://pytest.org)
 
 Research-grade Sovereign Fixed Income & Country Risk Engine. Reverse-engineered and formalized from macro trading workbooks (see `excel_legacy/README.md` for provenance), modernizing legacy Excel models into a modular Python engine featuring **Nelson-Siegel (1987)** parametric term-structure calibration, **EMBI+ (J.P. Morgan Emerging Markets Bond Index Plus) sovereign risk spread decomposition**, **carry & roll-down dynamics**, and **multi-year credit risk DCF valuation**.
 
@@ -27,9 +27,9 @@ From the fitted spot curve, we derive the **instantaneous forward rate** $f(m)$:
 
 $$f(m) = y(m) + m \cdot y'(m) = \beta_0 + \beta_1 e^{-m/\tau} + \beta_2 \left(\frac{m}{\tau} e^{-m/\tau}\right)$$
 
-And continuous **discount factors** $D(m)$:
+And continuous **discount factors** $D(m)$ (yields in decimal; pass `units="percent"` for percentage inputs):
 
-$$D(m) = \exp\left(-\frac{y(m)}{100} \cdot m\right)$$
+$$D(m) = \exp\left(-y(m) \cdot m\right)$$
 
 ### 2. Cross-Country Sovereign Spread & EMBI+ Risk Decomposition
 To assess relative value and carry trade attractiveness between Brazilian sovereign debt (DI / NTN-F) and US Treasuries:
@@ -72,11 +72,11 @@ Given sovereign risk spread $s = \text{EMBI}_{\text{bps}} / 10000$ and standard 
 - **Implied Hazard Rate (Default Intensity)**:
   $$\lambda = \frac{s}{1 - R}$$
 
-- **Cumulative Survival Probability**:
-  $$Q(t) = \exp(-\lambda t)$$
+- **Cumulative Survival Probability** (recursive, supports time-varying hazard):
+  $$S_0 = 1, \qquad S_t = S_{t-1} \cdot e^{-\lambda_t \Delta t}$$
 
-- **Discounted Cash Flow (DCF)**:
-  $$\text{PV} = \sum_{t=1}^N \frac{s_t}{(1 + r_{\text{discount}})^t}$$
+- **Discounted Cash Flow (DCF)** (survival-weighted):
+  $$\text{PV} = \sum_{t=1}^N \frac{s_t \cdot S_t}{(1 + r_{\text{discount}})^t}, \qquad EL_t = S_{t-1}\,(1 - e^{-\lambda_t \Delta t})\,(1 - R)$$
 
 ---
 
@@ -101,6 +101,7 @@ jpm-embi-sovereign-yield-curve/
 │   ├── test_nelson_siegel.py      # Analytical limits, RMSE fitting, and discount factors
 │   ├── test_sovereign_spread.py   # Spreads, EMBI deductions, Fisher real rates
 │   ├── test_carry_rolldown.py     # Carry, roll-down, and credit DCF assertions
+│   ├── test_high_severity_fixes.py # Survival-weighted DCF and tenor-alignment regressions
 │   └── test_api.py                # REST API endpoint tests
 ├── Dockerfile
 ├── requirements.txt
@@ -128,17 +129,22 @@ python -m pytest tests/ -v
 
 Expected output:
 ```
-tests/test_api.py::test_health PASSED                                    [ 10%]
-tests/test_api.py::test_fit_curve_endpoint PASSED                        [ 20%]
-tests/test_api.py::test_analyze_spread_endpoint PASSED                   [ 30%]
-tests/test_api.py::test_macro_summary_endpoint PASSED                    [ 40%]
-tests/test_carry_rolldown.py::test_carry_rolldown_metrics PASSED         [ 50%]
-tests/test_carry_rolldown.py::test_credit_dcf PASSED                     [ 60%]
-tests/test_nelson_siegel.py::test_nelson_siegel_limits PASSED           [ 70%]
-tests/test_nelson_siegel.py::test_nelson_siegel_fit PASSED              [ 80%]
-tests/test_nelson_siegel.py::test_discount_factors PASSED               [ 90%]
+tests/test_api.py::test_health PASSED                                    [  6%]
+tests/test_api.py::test_fit_curve_endpoint PASSED                        [ 13%]
+tests/test_api.py::test_analyze_spread_endpoint PASSED                   [ 20%]
+tests/test_api.py::test_macro_summary_endpoint PASSED                    [ 26%]
+tests/test_carry_rolldown.py::test_carry_rolldown_metrics PASSED         [ 33%]
+tests/test_carry_rolldown.py::test_credit_dcf PASSED                     [ 40%]
+tests/test_high_severity_fixes.py::test_dcf_matches_manual_survival_weighted_calc PASSED [ 46%]
+tests/test_high_severity_fixes.py::test_dcf_recursive_survival_with_decaying_spread PASSED [ 53%]
+tests/test_high_severity_fixes.py::test_loader_aligns_us_to_br_tenors PASSED [ 60%]
+tests/test_high_severity_fixes.py::test_loader_alignment_validates_empty_curves PASSED [ 66%]
+tests/test_nelson_siegel.py::test_nelson_siegel_limits PASSED            [ 73%]
+tests/test_nelson_siegel.py::test_nelson_siegel_fit PASSED               [ 80%]
+tests/test_nelson_siegel.py::test_discount_factors PASSED                [ 86%]
+tests/test_nelson_siegel.py::test_discount_factor_decimal_contract PASSED [ 93%]
 tests/test_sovereign_spread.py::test_sovereign_spread_calculation PASSED [100%]
-======= 10 passed in 1.10s =======
+======= 15 passed in 1.10s =======
 ```
 
 ### 3. Interactive CLI Commands
