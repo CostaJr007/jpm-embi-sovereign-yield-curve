@@ -83,7 +83,7 @@ Given sovereign risk spread $s = \text{EMBI}_{\text{bps}} / 10000$ and standard 
 ## Architecture & Project Layout
 
 ```
-sovereign-yield-curve-embi/
+jpm-embi-sovereign-yield-curve/
 ├── sovereign_embi/
 │   ├── models/
 │   │   ├── nelson_siegel.py       # Parametric Nelson-Siegel curve calibration & forwards
@@ -115,8 +115,8 @@ sovereign-yield-curve-embi/
 ### 1. Installation
 
 ```bash
-git clone https://github.com/CostaJr007/sovereign-yield-curve-embi.git
-cd sovereign-yield-curve-embi
+git clone https://github.com/CostaJr007/jpm-embi-sovereign-yield-curve.git
+cd jpm-embi-sovereign-yield-curve
 pip install -r requirements.txt
 ```
 
@@ -194,10 +194,10 @@ curl -X POST "http://localhost:8000/fit-curve" \
 
 ```bash
 # Build Docker image
-docker build -t sovereign-yield-curve-embi .
+docker build -t jpm-embi-sovereign-yield-curve .
 
 # Run containerized service
-docker run -d -p 8000:8000 --name sovereign-embi sovereign-yield-curve-embi
+docker run -d -p 8000:8000 --name sovereign-embi jpm-embi-sovereign-yield-curve
 ```
 
 ---

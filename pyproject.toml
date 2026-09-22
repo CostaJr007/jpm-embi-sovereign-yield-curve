@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sovereign-yield-curve-embi"
+name = "jpm-embi-sovereign-yield-curve"
 version = "1.0.0"
 description = "Institutional sovereign yield curve modeling (Nelson-Siegel), cross-border EMBI+ risk spread analytics, carry & roll-down dynamics, and sovereign credit DCF valuation."
 readme = "README.md"

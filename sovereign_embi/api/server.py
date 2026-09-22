@@ -65,7 +65,7 @@ class CreditDCFRequest(BaseModel):
 def health():
     return {
         "status": "healthy",
-        "service": "sovereign-yield-curve-embi",
+        "service": "jpm-embi-sovereign-yield-curve",
         "version": "1.0.0"
     }
 
