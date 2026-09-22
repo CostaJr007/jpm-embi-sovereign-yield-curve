@@ -82,13 +82,29 @@ class NelsonSiegelCurve:
         beta0: float,
         beta1: float,
         beta2: float,
-        tau: float
+        tau: float,
+        units: str = "decimal",
     ) -> np.ndarray:
-        """Calculate discount factor D(m) = exp(-y(m) * m). Yield must be decimal."""
+        """Calculate discount factor D(m) = exp(-y_dec(m) * m).
+
+        Args:
+            maturities: Tenors in years.
+            beta0, beta1, beta2, tau: Nelson-Siegel parameters, expressed in the
+                same units as ``units``.
+            units: "decimal" (default) — yields/parametros em decimal
+                (e.g. 0.12 = 12%); DF = exp(-y_dec * m).
+                "percent" — yields/parametros em percentual
+                (e.g. 12.0 = 12%); converte com y_dec = y / 100.
+
+        Returns:
+            Discount factors, one per maturity.
+        """
+        if units not in ("decimal", "percent"):
+            raise ValueError('units must be "decimal" or "percent".')
         m = np.asarray(maturities, dtype=float)
-        # Assuming yield in percentage (e.g., 12.5 means 12.5%), convert to decimal
-        y = NelsonSiegelCurve.zero_rate(m, beta0, beta1, beta2, tau) / 100.0
-        return np.exp(-y * m)
+        y = NelsonSiegelCurve.zero_rate(m, beta0, beta1, beta2, tau)
+        y_dec = y / 100.0 if units == "percent" else y
+        return np.exp(-y_dec * m)
 
     def fit(
         self,
@@ -172,8 +188,20 @@ class NelsonSiegelCurve:
             self.params.tau
         )
 
-    def discount_factors(self, maturities: Union[List[float], np.ndarray]) -> np.ndarray:
-        """Predict discount factors for given maturities."""
+    def discount_factors(
+        self,
+        maturities: Union[List[float], np.ndarray],
+        units: str = "decimal",
+    ) -> np.ndarray:
+        """Predict discount factors for given maturities.
+
+        Args:
+            maturities: Tenors in years.
+            units: "decimal" (default) or "percent" — unidade dos parametros
+                calibrados. Curvas calibradas via fit() sobre yields em
+                percentual usam units="percent"; curvas em decimal usam
+                units="decimal".
+        """
         if self.params is None:
             raise RuntimeError("Model has not been fitted yet. Call fit() first.")
         return self.discount_factor(
@@ -181,5 +209,6 @@ class NelsonSiegelCurve:
             self.params.beta0,
             self.params.beta1,
             self.params.beta2,
-            self.params.tau
+            self.params.tau,
+            units=units,
         )

@@ -50,7 +50,8 @@ def test_discount_factors():
     curve = NelsonSiegelCurve()
     curve.fit(maturities, [12.0, 12.5, 12.8, 12.6, 12.2])
 
-    dfs = curve.discount_factors(maturities)
+    # Curva calibrada em percentual -> units="percent".
+    dfs = curve.discount_factors(maturities, units="percent")
     preds = curve.predict(maturities)
 
     # Check bounds and exact formula invariant D(m) = exp(-y/100 * m)
@@ -62,3 +63,38 @@ def test_discount_factors():
     # Monotonicity check
     for i in range(len(dfs) - 1):
         assert dfs[i] > dfs[i + 1]
+
+
+def test_discount_factor_decimal_contract():
+    """Contrato: yields em DECIMAL por padrao; DF=exp(-y_dec*m)."""
+    import math
+
+    # DF(0.12, 5) ~= exp(-0.6) — pega o bug do /100 incondicional.
+    df = NelsonSiegelCurve.discount_factor(
+        np.array([5.0]), beta0=0.12, beta1=0.0, beta2=0.0, tau=1.5
+    )[0]
+    assert np.isclose(df, math.exp(-0.6), atol=1e-9)
+
+    # units="percent": 12.0% a 5y -> exp(-0.6) tambem.
+    df_pct = NelsonSiegelCurve.discount_factor(
+        np.array([5.0]), beta0=12.0, beta1=0.0, beta2=0.0, tau=1.5,
+        units="percent",
+    )[0]
+    assert np.isclose(df_pct, math.exp(-0.6), atol=1e-9)
+
+    # Decimal NAO deve dividir por 100: y=12.0 decimal -> exp(-60), nao exp(-0.6).
+    df_wrong = NelsonSiegelCurve.discount_factor(
+        np.array([5.0]), beta0=12.0, beta1=0.0, beta2=0.0, tau=1.5
+    )[0]
+    assert np.isclose(df_wrong, math.exp(-60.0), atol=1e-12)
+
+    # units invalido levanta erro claro.
+    try:
+        NelsonSiegelCurve.discount_factor(
+            np.array([1.0]), beta0=0.1, beta1=0.0, beta2=0.0, tau=1.5,
+            units="basis_points",
+        )
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("units invalido deveria levantar ValueError")

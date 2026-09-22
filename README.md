@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests: Pytest](https://img.shields.io/badge/Tests-10%20Passed-brightgreen.svg)](https://pytest.org)
 
-Institutional Sovereign Fixed Income & Country Risk Engine. Reverse-engineered, formalized, and productionalized from macro trading spreadsheets (`EMBI DOS DEUSES ATUALIZANDO REAL TIME.xlsx`), modernizing legacy Excel query models into an asynchronous Python architecture featuring **Nelson-Siegel (1987)** parametric term-structure calibration, **EMBI+ sovereign risk spread decomposition**, **carry & roll-down dynamics**, and **multi-year credit risk DCF valuation**.
+Research-grade Sovereign Fixed Income & Country Risk Engine. Reverse-engineered and formalized from macro trading workbooks (`excel_legacy/sovereign_yield_curve_embi_legacy.xlsx`), modernizing legacy Excel models into a modular Python engine featuring **Nelson-Siegel (1987)** parametric term-structure calibration, **EMBI+ sovereign risk spread decomposition**, **carry & roll-down dynamics**, and **multi-year credit risk DCF valuation**.
 
 ---
 
@@ -93,7 +93,7 @@ sovereign-yield-curve-embi/
 │   ├── connectors/
 │   │   └── excel_loader.py        # Excel parser for legacy workbook + fallback generator
 │   ├── api/
-│   │   └── server.py              # FastAPI microservice with Swagger OpenAPI specs
+│   │   └── server.py              # FastAPI service with Swagger OpenAPI specs
 │   └── cli.py                     # Typer + Rich interactive terminal interface
 ├── excel_legacy/                  # Original Excel workbook reference
 │   └── sovereign_yield_curve_embi_legacy.xlsx   # Sanitized legacy workbook (metadata stripped)
@@ -196,7 +196,7 @@ curl -X POST "http://localhost:8000/fit-curve" \
 # Build Docker image
 docker build -t sovereign-yield-curve-embi .
 
-# Run containerized microservice
+# Run containerized service
 docker run -d -p 8000:8000 --name sovereign-embi sovereign-yield-curve-embi
 ```
 

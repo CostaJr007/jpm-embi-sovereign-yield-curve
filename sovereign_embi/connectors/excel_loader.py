@@ -156,7 +156,13 @@ class SovereignDataLoader:
 
     @classmethod
     def generate_sample_dataset(cls) -> SovereignDataset:
-        """Generate realistic baseline Brazil vs US yield curve dataset."""
+        """Generate realistic baseline Brazil vs US yield curve dataset.
+
+        Nota: BR e US usam grades de tenores distintas (BR inclui 0.75/8.0,
+        US inclui 7.0/30.0). Nao compare os vetores crus ponto a ponto;
+        use :meth:`aligned_for_spread` para interpolar a curva US nos
+        tenores BR antes de chamar ``calculate_spreads()``.
+        """
         return SovereignDataset(
             br_maturities=[0.25, 0.50, 0.75, 1.0, 2.0, 3.0, 5.0, 8.0, 10.0],
             br_yields=[12.245, 12.939, 13.422, 13.494, 12.556, 12.690, 12.286, 12.196, 12.207],
@@ -170,3 +176,55 @@ class SovereignDataLoader:
             br_gdp_forecast=3.4,
             us_gdp_forecast=7.0
         )
+
+    @classmethod
+    def aligned_for_spread(
+        cls, dataset: SovereignDataset
+    ) -> "tuple[list[float], list[float], list[float]]":
+        """Interpola a curva US nos tenores BR para spread ponto a ponto.
+
+        ``SovereignSpreadAnalyzer.calculate_spreads()`` exige
+        ``len(maturities) == len(br_yields) == len(us_yields)`` nos MESMOS
+        tenores. Como BR e US tem grades distintas, interpola-se a curva US
+        (linear, via ``np.interp``) nos vencimentos BR. Valores fora do
+        intervalo US sao extrapolados com o extremo mais proximo (comportamento
+        padrao do ``np.interp`` com ``left``/``right`` = bordas).
+
+        Args:
+            dataset: SovereignDataset com curvas BR e US (quaisquer tenores).
+
+        Returns:
+            Tupla (maturities, br_yields, us_yields_interp) com a curva US
+            reamostrada nos tenores BR, pronta para ``calculate_spreads()``.
+
+        Raises:
+            ValueError: se alguma curva estiver vazia ou com tamanhos
+                inconsistentes.
+        """
+        if not dataset.br_maturities or not dataset.br_yields:
+            raise ValueError("Curva BR vazia: br_maturities/br_yields sem pontos.")
+        if not dataset.us_maturities or not dataset.us_yields:
+            raise ValueError("Curva US vazia: us_maturities/us_yields sem pontos.")
+        if len(dataset.br_maturities) != len(dataset.br_yields):
+            raise ValueError("br_maturities e br_yields devem ter o mesmo tamanho.")
+        if len(dataset.us_maturities) != len(dataset.us_yields):
+            raise ValueError("us_maturities e us_yields devem ter o mesmo tamanho.")
+
+        br_m = np.asarray(dataset.br_maturities, dtype=float)
+        br_y = np.asarray(dataset.br_yields, dtype=float)
+        us_m = np.asarray(dataset.us_maturities, dtype=float)
+        us_y = np.asarray(dataset.us_yields, dtype=float)
+
+        # np.interp exige xp crescente: ordena a curva US.
+        order = np.argsort(us_m)
+        us_m_sorted = us_m[order]
+        us_y_sorted = us_y[order]
+
+        us_interp = np.interp(
+            br_m,
+            us_m_sorted,
+            us_y_sorted,
+            left=float(us_y_sorted[0]),
+            right=float(us_y_sorted[-1]),
+        )
+        return br_m.tolist(), br_y.tolist(), us_interp.tolist()
